@@ -58,7 +58,8 @@ android {
 
 // Calls regular ndk-build(.cmd) script from app directory
     task ndkBuild(type: Exec) {
-        def ndkDir = project.plugins.findPlugin('com.android.application').sdkHandler.getNdkFolder()
+        // Requires ndk.dir to be set in /local.properties
+        def ndkDir = project.android.ndkDirectory.absolutePath
 
         def ndkBuild = ""
         if (Os.isFamily(Os.FAMILY_WINDOWS)) {

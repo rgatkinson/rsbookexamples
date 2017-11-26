@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <android/log.h>
 #include <android/bitmap.h>
+#include <string.h>
 
 #define LOGD(...) ((void)__android_log_print(ANDROID_LOG_DEBUG, "ProfilerExampleNDK", __VA_ARGS__))
 

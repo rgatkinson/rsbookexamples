@@ -24,11 +24,15 @@
 
 package net.hydex11.profilerexample;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import java.io.BufferedWriter;
@@ -74,6 +78,7 @@ public class Timings {
     public void setTimingCallback(TimingCallback timingCallback) {
         this.timingCallback = timingCallback;
     }
+
     // Sets custom function to be called before closing app
     public void setEndCallback(TimingCallback endCallback) {
         this.endCallback = endCallback;
@@ -91,6 +96,22 @@ public class Timings {
         saveStatsToDisk = enable;
 
         if (saveStatsToDisk && statsFileWriter == null) {
+            // Check for permissions
+            // https://stackoverflow.com/a/37854281
+            if (ContextCompat.checkSelfPermission(context,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+
+                if (ActivityCompat.shouldShowRequestPermissionRationale((MainActivity) context,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                    // Ok, already have permissions
+                } else {
+                    ActivityCompat.requestPermissions((MainActivity) context,
+                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 23
+                    );
+                }
+            }
+
             // Creates a custom folder inside the external dir
             File rsProfilerDir = new File(Environment.getExternalStorageDirectory() + File.separator + "RSProfiler");
             rsProfilerDir.mkdirs();
@@ -161,6 +182,7 @@ public class Timings {
     public void addTiming(String tag, Object... args) {
         addTiming(String.format(tag, args));
     }
+
     public void addTiming(String tag) {
 
         // If callback function exists, call it and waits for its completion
@@ -192,7 +214,7 @@ public class Timings {
             try {
                 sendStats();
 
-                if(endCallback != null)
+                if (endCallback != null)
                     endCallback.run();
 
                 ((MainActivity) context).finishAffinity();
